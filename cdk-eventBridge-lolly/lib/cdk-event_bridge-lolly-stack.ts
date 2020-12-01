@@ -87,7 +87,7 @@ export class CdkEventBridgeLollyStack extends cdk.Stack {
           actionName:'Checkout',
           owner:'TanzeelTasleem',
           repo:"aws-cdk-eventBridge-lolly-app",
-          oauthToken:cdk.SecretValue.secretsManager('AWS_GT'), ///create token on github and save it on aws secret manager
+          oauthToken:cdk.SecretValue.secretsManager('PIPELINE_SECRET'), ///create token on github and save it on aws secret manager
           output:outputSources,                                       ///Output will save in the sourceOutput Artifact
           branch:"master",                                           ///Branch of your repo
         }),
@@ -121,8 +121,10 @@ export class CdkEventBridgeLollyStack extends cdk.Stack {
                 },
               },
               artifacts: {
-                baseDirectory: './public',
-                files: ['**/*'],
+                'base-directory': 'public',   ///outputting our generated Gatsby Build files to the public directory
+                "files": [
+                  '**/*'
+                ]
               },
             })
           }),
@@ -195,9 +197,9 @@ export class CdkEventBridgeLollyStack extends cdk.Stack {
       eventBus: eventBus,
     });
 
-    const logGroup = new logs.LogGroup(this, "MyLogGroup", {
-      logGroupName: "appsync/lollyApp/eventBridge",
-    });
+    // const logGroup = new logs.LogGroup(this, "MyLogGroup", {
+    //   logGroupName: "appsync/lollyApp/eventBridge",
+    // });
 
     // rule.addTarget(new targets.CloudWatchLogGroup(logGroup));
     rule.addTarget(new targets.LambdaFunction(eventLambda));
@@ -245,3 +247,4 @@ export class CdkEventBridgeLollyStack extends cdk.Stack {
 //`${process.env.GITHUB_TOKEN}`08184ab47144f0ddbdc8872
 
 // 338020a08252bb6e182ca3c6186fa019ef869044
+// 5032b3077ebaf0c15bdb61a6239b99e23cc27ff4
