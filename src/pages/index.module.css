@@ -1,0 +1,28 @@
+.lollyContainer{
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: space-around;
+   height: 450px;
+}
+.lollyWrapper{
+    display: flex;
+    justify-content: space-evenly;
+    width: 800px;
+    /* border :1px solid green; */
+}
+.lollyBtn{
+    width: 400px;
+    height: 50px;
+    color:white;
+    font-size: 24px;
+    padding: 2px;
+    text-transform: capitalize;
+    background-color: transparent;
+    border: 2px solid #fa73d9;
+    text-shadow: #fa73d9 0 0 16px;
+    box-shadow: #fa73d9 0 0 10px;
+    border-radius: 25px;
+    font-family: 'Yellowtail', cursive;
+    cursor: pointer;
+}

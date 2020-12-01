@@ -1,0 +1,42 @@
+.container{
+    display: flex;
+    justify-content: space-evenly;
+}
+.box{
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    /* border: 1px solid red; */
+    width: 500px;
+}
+.linkBox{
+    /* border: 2px solid green; */
+    width: 100%;
+    text-align: center;
+}
+.link{
+    padding : 15px;
+    margin :0px;
+    color : #ff1764;
+    text-shadow: #fa73d9 0 0 10px;
+    font-size: 22px; 
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    background-color: black;
+    border-radius: 10px;
+}
+.detailBox{
+    margin-top: 20px;
+    padding : 5px;
+    background-color: rgba(0,0,0,.2);
+    box-shadow: 0 0 15px rgba(0,0,0,1);
+    height: 100%;
+    justify-self: center;
+    align-self: stretch;
+}
+.details{
+    margin:0px;
+    padding: 10px;
+    color : white;
+    font-size: 30px; 
+}

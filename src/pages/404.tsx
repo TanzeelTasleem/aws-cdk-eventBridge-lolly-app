@@ -1,10 +1,35 @@
-import * as React from 'react'
+import { gql, useQuery } from "@apollo/client"
+import React from "react"
+import Layout from "../components/layout"
+import SEO from "../components/seo"
+import ShowLolly from "../components/showLolly/showLolly"
 
-const NotFoundPage = () => (
-  <div>
-    <h1>NOT FOUND</h1>
-    <p>You just hit a route that doesn&#39;t exist... the sadness.</p>
-  </div>
-)
+export const getLollyByPath = gql`
+  query getLolly($path: String!) {
+    getLolly(lollyPath: $path) {
+      senderName
+      recipient
+      msg
+      lollyTop
+      lollyMid
+      lollyBotm
+      lollyPath
+    }
+  }
+`
+const NotFoundPage = ({ location }) => {
+  const id = location.href ? location.pathname.replace("/", "") : ""
+  const { loading, data, error } = useQuery(getLollyByPath, {
+    variables: { path: id },
+  })
+  return (
+    <Layout>
+      <SEO title="404: Not found" />
+      {loading && <h1>Loading Data ...</h1>}
+      {data && <ShowLolly data={data.getLolly} location={location.href} />}
+      {error && <h1>Not Found ...</h1>}
+    </Layout>
+  )
+}
 
 export default NotFoundPage

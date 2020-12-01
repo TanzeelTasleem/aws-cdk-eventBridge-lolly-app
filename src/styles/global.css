@@ -1,0 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Yellowtail&display=swap');
+
+body{
+    margin: 0px;
+    padding: 0px;
+    font-family: 'Yellowtail', cursive;
+}
+html{
+    background-color: #21212b;
+}

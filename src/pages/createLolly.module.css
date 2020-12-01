@@ -1,0 +1,86 @@
+
+.container{
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+.box{
+    display: flex;
+    align-items: center;
+}
+.colorPickers{
+    display: flex;
+    /* border: 1px solid green; */
+    flex-direction: column;
+    justify-content: space-around;
+    height: 200px;
+}
+.labelForPicker{
+    height: 35px;
+    width: 35px;
+    background-color: #bbb;
+    border-radius: 50%;
+    padding : 0px;
+    margin-top: -20px;
+    overflow: hidden;
+}
+.picker{
+    width: 80px;
+    height: 80px;
+    margin-top: -15px;
+    margin-left: -15px;
+}
+.lollyForm{
+   background-color: black;
+   height: 450px;
+   padding: 20px;
+   border-radius: 10px;
+   color : #fa73d9;
+   text-shadow: #fa73d9 0 0 10px;
+   font-size: 20px;
+   text-transform: capitalize;
+
+}
+.form{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-around;
+}
+input{
+    color: white;
+    height: 35px;
+    text-transform: capitalize;
+    border: 1px solid #fa73d9;
+    box-shadow: #fa73d9 0 0 8px;
+    background-color: #21212b;
+    border-radius: 8px;
+    font-size: 15px;
+    padding-left:10px;
+}
+textarea{
+    color: white;
+    border-radius: 10px;
+    box-shadow: #fa73d9 0 0 8px;
+    border: 1.5px solid #fa73d9;
+    background-color: #21212b;
+}
+.formBtn{
+    width: 400px;
+    height: 50px;
+    color:white;
+    font-size: 26px;
+    padding: 2px;
+    color: #fa73d9;
+    text-transform: capitalize;
+    background-color: transparent;
+    border: 2px solid #fa73d9;
+    text-shadow: #fa73d9 0 0 8px;
+    box-shadow: #fa73d9 0 0 8px;
+    border-radius: 25px;
+    font-family: 'Yellowtail', cursive;
+    cursor: pointer;
+    margin-top: 20px;
+    align-self: center;
+}
