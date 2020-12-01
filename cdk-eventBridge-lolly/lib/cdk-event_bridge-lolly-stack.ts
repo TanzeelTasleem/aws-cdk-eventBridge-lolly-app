@@ -121,7 +121,7 @@ export class CdkEventBridgeLollyStack extends cdk.Stack {
                 },
               },
               artifacts: {
-                'base-directory': 'public',   ///outputting our generated Gatsby Build files to the public directory
+                'base-directory': './public',   ///outputting our generated Gatsby Build files to the public directory
                 "files": [
                   '**/*'
                 ]
@@ -202,7 +202,7 @@ export class CdkEventBridgeLollyStack extends cdk.Stack {
     // });
 
     // rule.addTarget(new targets.CloudWatchLogGroup(logGroup));
-    rule.addTarget(new targets.LambdaFunction(eventLambda));
+    rule.addTarget(new targets.CodePipeline(pipeline));
 
     const dataSource = api.addLambdaDataSource(
       "lollyAppDataSource",
