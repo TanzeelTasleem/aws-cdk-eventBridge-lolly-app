@@ -6,12 +6,16 @@ import * as events from "@aws-cdk/aws-events";
 import * as targets from "@aws-cdk/aws-events-targets";
 import * as logs from "@aws-cdk/aws-logs";
 import * as Iam from "@aws-cdk/aws-iam";
-import * as s3 from '@aws-cdk/aws-s3'
-import * as codepipeline from '@aws-cdk/aws-codepipeline';
-import * as CodePipelineAction from '@aws-cdk/aws-codepipeline-actions'
-import * as CodeBuild from '@aws-cdk/aws-codebuild'
-import * as dotenv from 'dotenv'
-dotenv.config()
+import * as s3 from "@aws-cdk/aws-s3";
+import * as codepipeline from "@aws-cdk/aws-codepipeline";
+import * as CodePipelineAction from "@aws-cdk/aws-codepipeline-actions";
+import * as CodeBuild from "@aws-cdk/aws-codebuild";
+import * as dotenv from "dotenv";
+import * as s3deploy from "@aws-cdk/aws-s3-deployment"
+import * as cloudfront from "@aws-cdk/aws-cloudfront";
+import * as origins from "@aws-cdk/aws-cloudfront-origins";
+
+dotenv.config();
 
 export class CdkEventBridgeLollyStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -19,29 +23,73 @@ export class CdkEventBridgeLollyStack extends cdk.Stack {
 
     const bucket = new s3.Bucket(this, "Cdk-virlolly-app-bucket", {
       publicReadAccess: true,
-      versioned : true,
+      versioned: true,
       websiteIndexDocument: "index.html",
       websiteErrorDocument: "404.html",
+    });
+    
+    new s3deploy.BucketDeployment(this, "todoApp-EventBridge-sns", {
+      sources: [s3deploy.Source.asset("../public")],
+      destinationBucket: bucket,
     })
 
-    const outputSources = new codepipeline.Artifact()
-    const outputWebsite = new codepipeline.Artifact()
+    new cloudfront.Distribution(this, "Distribution", {
+      defaultBehavior: { origin: new origins.S3Origin(bucket) },
+    });
 
-    const pipeline = new codepipeline.Pipeline(this, 'Pipeline', {
-      pipelineName: 'lollyWebsite',
+    const outputSources = new codepipeline.Artifact();
+    const outputWebsite = new codepipeline.Artifact();
+
+    const policy = new Iam.PolicyStatement();
+    policy.addActions('s3:*');
+    policy.addResources('*');
+    
+    const pipeline = new codepipeline.Pipeline(this, "Pipeline", {
+      pipelineName: "lollypipeline",
       restartExecutionOnUpdate: true,
-    })
+    });
+    
+    // const s3Stage = new CodeBuild.PipelineProject(this , "s3Stage"{
+    //  buildSpec : CodeBuild.BuildSpec.fromObject({
+    //   version: '0.2',
+    //   phases: {
+    //     install: {
+    //       "runtime-versions":{
+    //         "nodejs": 12
+    //       },
+    //       commands: [
+    //         'npm i -g gatsby',
+    //         'npm install',
+    //       ],
+    //     },
+    //     build: {
+    //       commands: [
+    //         'npm run build build',
+    //       ],
+    //     },
+    //   },
+    //   artifacts: {
+    //     'base-directory': './public',   ///outputting our generated Gatsby Build files to the public directory
+    //     "files": [
+    //       '**/*'
+    //     ]
+    //   },
+    // }),
+    // environment: {
+    //   buildImage: CodeBuild.LinuxBuildImage.STANDARD_3_0,   ///BuildImage version 3 because we are using nodejs environment 12
+    // },
+    // }) 
 
     pipeline.addStage({
       stageName: 'Source',
       actions: [
         new CodePipelineAction.GitHubSourceAction({
-          actionName: 'Checkout',
-          owner: `${process.env.GITHUB_OWNER}`,
-          repo: `${process.env.GITHUB_REPO}`,
-          oauthToken: cdk.SecretValue.secretsManager(`${process.env.GITHUB_TOKEN}`),
-          output: outputSources,
-          trigger: CodePipelineAction.GitHubTrigger.WEBHOOK,
+          actionName:'Checkout',
+          owner:'TanzeelTasleem',
+          repo:"aws-cdk-eventBridge-lolly-app",
+          oauthToken:cdk.SecretValue.secretsManager('AWS_GT'), ///create token on github and save it on aws secret manager
+          output:outputSources,                                       ///Output will save in the sourceOutput Artifact
+          branch:"master",                                           ///Branch of your repo
         }),
       ],
     })
@@ -73,7 +121,7 @@ export class CdkEventBridgeLollyStack extends cdk.Stack {
                 },
               },
               artifacts: {
-                baseDirectory: '../public',
+                baseDirectory: './public',
                 files: ['**/*'],
               },
             })
@@ -85,17 +133,19 @@ export class CdkEventBridgeLollyStack extends cdk.Stack {
     })
 
     pipeline.addStage({
-      stageName: 'Deploy',
+      stageName: "Deploy",
       actions: [
         // AWS CodePipeline action to deploy CRA website to S3
         new CodePipelineAction.S3DeployAction({
-          actionName: 'Website',
+          actionName: "WebsiteDeploy",
           input: outputWebsite,
           bucket: bucket,
         }),
       ],
-    })
-  
+    });
+    
+    pipeline.addToRolePolicy(policy)
+
     const api = new appsync.GraphqlApi(this, "lolly-App-EventBridge", {
       name: "lolly-App-EventBridge",
       schema: appsync.Schema.fromAsset("graphql/schema.gql"),
@@ -111,7 +161,7 @@ export class CdkEventBridgeLollyStack extends cdk.Stack {
       partitionKey: { name: "lollyPath", type: dynamodb.AttributeType.STRING },
     });
 
-    const lollyLambda = new lambda.Function(this,"LollyAppQueryLambda", {
+    const lollyLambda = new lambda.Function(this, "LollyAppQueryLambda", {
       code: lambda.Code.fromAsset("lambda"),
       runtime: lambda.Runtime.NODEJS_12_X,
       handler: "main.handler",
@@ -149,7 +199,7 @@ export class CdkEventBridgeLollyStack extends cdk.Stack {
       logGroupName: "appsync/lollyApp/eventBridge",
     });
 
-    rule.addTarget(new targets.CloudWatchLogGroup(logGroup));
+    // rule.addTarget(new targets.CloudWatchLogGroup(logGroup));
     rule.addTarget(new targets.LambdaFunction(eventLambda));
 
     const dataSource = api.addLambdaDataSource(
@@ -193,3 +243,5 @@ export class CdkEventBridgeLollyStack extends cdk.Stack {
   }
 }
 //`${process.env.GITHUB_TOKEN}`08184ab47144f0ddbdc8872
+
+// 338020a08252bb6e182ca3c6186fa019ef869044
